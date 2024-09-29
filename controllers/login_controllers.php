@@ -20,9 +20,9 @@ $stmt->close();
 if ($resultadoSTMT->num_rows > 0) {
   @session_start();
   $_SESSION["id"] = $nuestroResultado->id;
-  header('Location: ../views/listado.php');
+  header('Location: ../views/panel/listado.php');
   exit;
 } else {
-  header('Location: ../views/login.php?error=1');
+  header('Location: ../views/panel/login.php?error=1');
   exit;
 }

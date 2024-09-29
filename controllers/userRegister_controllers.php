@@ -32,7 +32,7 @@ if ($delete) {
   $stmt->bind_param('i', $id);
 
   if ($stmt->execute()) {
-    header('Location: ../views/listado.php');
+    header('Location: ../views/panel/listado.php');
     exit;
   } else {
     echo 'Error al eliminar el registro: ' . $stmt->error;
@@ -47,7 +47,7 @@ if ($submitForm && $edit) {
 
   $stmt->bind_param('sisi', $name, $age, $creation_date, $id);
   if ($stmt->execute()) {
-    header('Location: ../views/listado.php');
+    header('Location: ../views/panel/listado.php');
 
     exit;
   } else {
