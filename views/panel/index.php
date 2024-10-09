@@ -54,6 +54,10 @@
       align-items: center;
     }
 
+    .btn2 {
+      background-color: red;
+    }
+
     #cont-title h1 {
       font-size: 30px;
     }
