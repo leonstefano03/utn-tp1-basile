@@ -20,6 +20,7 @@ $stmt->close();
 if ($resultadoSTMT->num_rows > 0) {
   @session_start();
   $_SESSION["id"] = $nuestroResultado->id;
+  $_SESSION["is_admin"] = $nuestroResultado->admin;
   header('Location: ../views/panel/noticias.php');
   exit;
 } else {

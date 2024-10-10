@@ -15,35 +15,37 @@
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
-  @session_start();
-  require_once('../../db/db.php');
+
+
+
+
+
   $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
-
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
+  $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-  $submitForm = isset($_POST['hidden']) ? intval($_POST['hidden']) : 0;
 
-  if ($submitForm) {
-    $title = isset($_POST['title']) ? $_POST['title'] : '';
-    $text = isset($_POST['text']) ? $_POST['text'] : '';
-    $image = isset($_POST['image']) ? $_POST['image'] : '';
-    $description = isset($_POST['description']) ? $_POST['description'] : '';
-    $creation_date = isset($_POST['creation_date']) && !empty($_POST['creation_date']) ? $_POST['creation_date'] : date('Y-m-d H:i:s');
+  if ($id) {
 
-    $stmt = $conx->prepare('INSERT INTO noticias (title, description, creation_date, text, image, id_usuario) VALUES (?,?,?,?,?,?)');
-    $stmt->bind_param('sssssi', $title, $description, $creation_date, $text, $image, $_SESSION['id']);
+    include_once('../../db/db.php');
 
-    if ($stmt->execute()) {
-      header('Location: noticias.php');
-      exit;
-    } else {
-      echo 'Error al insertar el registro: ' . $stmt->error;
-      header('Location: ../panel/noticias.php?error=1');
-      exit();
-    }
+    $stmt = $conx->prepare("SELECT * FROM categorias WHERE id = ?");
+
+    $stmt->bind_param('i', $id);
+
+    $stmt->execute();
+
+    $resultadoSTMT = $stmt->get_result();
+
+    $fila  = $resultadoSTMT->fetch_object();
 
     $stmt->close();
-  };
+  }
+
+
+  $nombre = isset($fila->nombre) ? $fila->nombre : '';
+
+
   ?>
   <?php
   if ($error) { ?>
@@ -59,7 +61,6 @@
       <ul>
         <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
         <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-
         <?php if ($admin) { ?>
           <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
         <?php } ?>
@@ -67,23 +68,33 @@
     </div>
   </div>
   <div id="table">
-    <h2>Ingrese una noticia</h2>
+    <h2>AGREGAR CATEGORIA</h2>
+    <br>
     <div id="cont-info-table">
       <div id="info-table">
-        <form action="" method="POST">
-          <input type="text" name='title' placeholder="Ingrese el titulo de la noticia" required> <br>
-          <input type="text" name='description' placeholder="Ingrese la descripcion de la noticia" required> <br>
-          <input type="text" name='image' placeholder="Ingrese la imagen de la noticia" required> <br>
-          <textarea name="text" id="text" required></textarea><br>
+
+        <form action="../../controllers/categorias.php">
+          <input type="hidden" name="id" value="<?php echo $id; ?>">
+          <input type="text" name='nombre' placeholder="Ingrese el nombre de la categoria" value="<?php echo $nombre; ?>" required> <br>
           <input type="hidden" name="hidden" value="1">
-          <input type="submit" value="crear noticia"> <br>
+          <?php if ($id) { ?>
+
+            <input type="hidden" name="method" value="EDIT">
+
+
+          <?php   } else { ?>
+
+
+            <input type="hidden" name="method" value="NEW">
+
+          <?php   } ?>
+
+          <input type="submit"> <br>
         </form>
+        </table>
       </div>
     </div>
   </div>
-
-
-
 
 </body>
 <style>

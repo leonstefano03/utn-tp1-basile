@@ -16,30 +16,25 @@
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
 
-  require_once('../../db/db.php');
+  include_once('../../db/db.php');
 
+  $stmt = $conx->prepare("SELECT * FROM categorias");
+
+  $stmt->execute();
+
+  $resultadoSTMT = $stmt->get_result();
+
+  $nuestroResultado = [];
+
+  while ($fila  = $resultadoSTMT->fetch_object()) {
+    $nuestroResultado[] = $fila;
+  }
+
+  $stmt->close();
+
+  $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
 
-  $submitForm = isset($_POST['hidden']) ? intval($_POST['hidden']) : 0;
-
-  if ($submitForm) {
-
-    $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : '';
-
-    $stmt = $conx->prepare('INSERT INTO categorias (nombre) VALUES (?)');
-    $stmt->bind_param('s', $nombre);
-
-    if ($stmt->execute()) {
-      header('Location: categorias.php');
-      exit;
-    } else {
-      echo 'Error al insertar el registro: ' . $stmt->error;
-      header('Location: ../panel/categorias.php?error=1');
-      exit();
-    }
-
-    $stmt->close();
-  };
   ?>
   <?php
   if ($error) { ?>
@@ -55,25 +50,49 @@
       <ul>
         <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
         <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-        <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
+        <?php if ($admin) { ?>
+          <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
+        <?php } ?>
       </ul>
     </div>
   </div>
   <div id="table">
-    <h2>Ingrese una categoria</h2>
+    <h2>CATEGORIAS</h2>
+
+    <div id="cont-button-table-new">
+      <form action="categorias_edit.php?method=NEW">
+        <input id="button-table-new" type="submit" value="Agregar categoria">
+      </form>
+    </div>
+    <br>
+
+
     <div id="cont-info-table">
       <div id="info-table">
-        <form action="" method="POST">
-          <input type="text" name='nombre' placeholder="Ingrese el nombre de la categoria" required> <br>
-          <input type="hidden" name="hidden" value="1">
-          <input type="submit" value="crear categoria"> <br>
-        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            foreach ($nuestroResultado as $fila) { ?>
+              <tr>
+                <td><?php echo $fila->nombre ?></td>
+                <td>
+                  <a href="categorias_edit.php?id=<?php echo $fila->id ?>">editar</a>
+                  <a href="../../controllers/categorias.php?method=DELETE&id=<?php echo $fila->id ?>">eliminar</a>
+                </td>
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-
-
-
 
 </body>
 <style>
