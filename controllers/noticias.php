@@ -1,6 +1,7 @@
 <?php
 require_once('/xampp/htdocs/tp1/db/db.php');
-@session_start();
+include_once('/xampp/htdocs/tp1/controllers/sessionValidate.php');
+
 
 $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
 $submitForm = isset($_GET['hidden']) ? intval($_GET['hidden']) : 0;
@@ -96,8 +97,6 @@ if ($method == 'EDIT') {
 
 
 if ($id != 0) {
-  echo $id;
-
   $sql = "SELECT n.*, c.nombre as nombre_categoria, u.user_name as nombre_usuario 
   FROM noticias n 
   INNER JOIN categorias c ON n.id_categoria = c.id 

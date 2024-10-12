@@ -7,7 +7,6 @@
   <title>Document</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
 </head>
 
 <body>
@@ -25,39 +24,25 @@
   ?>
   <?php
   if ($error) { ?>
-    <h1>Error al cargar los datos, inténtelo nuevamente.</h1>
+    <div class="alert alert-danger" role="alert">
+      Error al cargar los datos, inténtelo nuevamente.
+    </div>
   <?php } ?>
 
+  <?php include_once('/xampp/htdocs/tp1/views/common/menu.php') ?>
 
-  <div id="menu">
-    <div id="cont-title">
-      <h1>Panel UTN</h1>
-    </div>
-    <div id="lista-acciones">
-      <ul>
-        <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
-        <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-        <?php if ($admin) { ?>
-          <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
-        <?php } ?>
-      </ul>
-    </div>
-  </div>
-  <div id="table">
-    <h2>CATEGORIAS</h2>
+  <div id="table" class="container mt-5" style="width: 80%;">
+    <h2 class="text-center mb-4">CATEGORÍAS</h2>
 
-    <div id="cont-button-table-new">
+    <div id="cont-button-table-new" class="mb-4 d-flex justify-content-end">
       <form action="categorias_edit.php?method=NEW">
-        <input id="button-table-new" type="submit" value="Agregar categoria">
+        <button id="button-table-new" type="submit" class="btn text-white bg-teal">Agregar categoría</button>
       </form>
     </div>
-    <br>
 
-
-    <div id="cont-info-table">
-      <div id="info-table">
-
-        <table>
+    <div id="cont-info-table" class="d-flex justify-content-center">
+      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 700px;">
+        <table class="table table-striped">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -70,8 +55,8 @@
               <tr>
                 <td><?php echo $fila->nombre ?></td>
                 <td>
-                  <a href="categorias_edit.php?id=<?php echo $fila->id ?>">editar</a>
-                  <a href="../../controllers/categorias.php?method=DELETE&id=<?php echo $fila->id ?>">eliminar</a>
+                  <a href="categorias_edit.php?id=<?php echo $fila->id ?>" class="text-decoration-none text-teal">editar</a>
+                  <a href="../../controllers/categorias.php?method=DELETE&id=<?php echo $fila->id ?>" class="text-decoration-none text-danger">eliminar</a>
                 </td>
               </tr>
             <?php } ?>
@@ -88,68 +73,26 @@
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: antiquewhite;
-    display: flex
-  }
-
-  #menu {
-    width: 20%;
-    height: 100%;
-    background-color: gray;
-  }
-
-  #cont-title {
-    width: 100%;
-    height: 20%;
-    background-color: teal;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .btn2 {
-    background-color: red;
-  }
-
-  #cont-title h1 {
-    font-size: 30px;
-  }
-
-  #table {
-    width: 80%;
-    height: 100%;
     background-color: burlywood;
     display: flex;
-    flex-direction: column;
   }
 
-  #cont-button-table-new {
-    width: 100%;
-    height: 15%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+  .bg-teal {
+    background-color: darkslategray;
+  }
+
+  .bg-teal:hover {
+    background-color: darkcyan;
   }
 
   #button-table-new {
-    width: 150px;
-    height: 40px;
+    width: 200px;
+    height: 50px;
     margin-right: 50px;
     border-radius: 5px;
-    border: 1px solid white;
-  }
-
-  #cont-info-table {
-    width: 100%;
-    height: 85%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   #info-table {
-    width: 700px;
-    height: 500px;
     background-color: azure;
   }
 </style>

@@ -7,7 +7,6 @@
   <title>Document</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
 </head>
 
 <body>
@@ -25,77 +24,74 @@
   @session_start();
 
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
-
-
   ?>
-  <?php
-  if ($error) { ?>
-    <h1>Error al cargar los datos, inténtelo nuevamente.</h1>
+  <?php if ($error) { ?>
+    <div class="alert alert-danger" role="alert">
+      Error al cargar los datos, inténtelo nuevamente.
+    </div>
   <?php } ?>
 
+  <?php include_once('/xampp/htdocs/tp1/views/common/menu.php') ?>
 
-  <div id="menu">
-    <div id="cont-title">
-      <h1>Panel UTN</h1>
-    </div>
-    <div id="lista-acciones">
-      <ul>
-        <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
-        <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-
-        <?php if ($admin) { ?>
-          <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
+  <div id="table" class="container mt-5" style="width: 80%;">
+    <div id="cont-info-table" class="d-flex justify-content-center">
+      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 700px;">
+        <?php if ($id != 0) { ?>
+          <h2 class="text-center mb-4">EDITAR NOTICIA</h2>
+        <?php } else { ?>
+          <h2 class="text-center mb-4">INGRESE UNA NOTICIA</h2>
         <?php } ?>
-      </ul>
-    </div>
-  </div>
-  <div id="table">
-    <?php if ($id != 0) { ?>
-      <h2>EDITAR NOTICIA</h2>
-    <?php } else { ?>
-      <h2>INGRESE UNA NOTICIA</h2>
-    <?php } ?>
-    <div id="cont-info-table">
-      <div id="info-table">
         <form action="../../controllers/noticias.php" method="GET">
-          <input type="text" name='title' placeholder="Ingrese el titulo de la noticia" value="<?php echo $title ?>" required> <br>
-          <input type="text" name='description' placeholder="Ingrese la descripcion de la noticia" value="<?php echo $description ?>" required> <br>
-          <input type="text" name='image' placeholder="Ingrese la imagen de la noticia" value="<?php echo $image ?>" required> <br>
-          <textarea name="text" id="text" required><?php echo $text ?></textarea><br>
 
-          <select name="id_categoria" id="id_categoria">
-            <?php if (!empty($categorias)): ?>
-              <?php foreach ($categorias as $categoria): ?>
-                <option value="<?= $categoria->id; ?>" <?= ($categoria->id == $id_categoria) ? 'selected' : ''; ?>>
-                  <?= $categoria->nombre; ?>
+          <div class="mb-3">
+            <label for="title" class="form-label">Título de la noticia</label>
+            <input type="text" name="title" id="title" class="form-control" placeholder="Ingrese el título de la noticia" value="<?php echo $title ?>" required>
+          </div>
 
-                </option>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <option value="">No hay categorías disponibles</option>
-            <?php endif; ?>
-          </select>
-          </select>
-          <br>
-          <h1><?php $id_noticia ?></h1>
+          <div class="mb-3">
+            <label for="description" class="form-label">Descripción</label>
+            <input type="text" name="description" id="description" class="form-control" placeholder="Ingrese la descripción" value="<?php echo $description ?>" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="image" class="form-label">Imagen</label>
+            <input type="text" name="image" id="image" class="form-control" placeholder="Ingrese la URL de la imagen" value="<?php echo $image ?>" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="text" class="form-label">Texto de la noticia</label>
+            <textarea name="text" id="text" class="form-control" rows="5" placeholder="Escriba el texto aquí..." required><?php echo $text ?></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="id_categoria" class="form-label">Categoría</label>
+            <select name="id_categoria" id="id_categoria" class="form-select">
+              <?php if (!empty($categorias)) : ?>
+                <?php foreach ($categorias as $categoria) : ?>
+                  <option value="<?= $categoria->id; ?>" <?= ($categoria->id == $id_categoria) ? 'selected' : ''; ?>>
+                    <?= $categoria->nombre; ?>
+                  </option>
+                <?php endforeach; ?>
+              <?php else : ?>
+                <option value="">No hay categorías disponibles</option>
+              <?php endif; ?>
+            </select>
+          </div>
+
           <?php if ($id != 0) { ?>
             <input type="hidden" name="id" value="<?php echo $id ?>">
             <input type="hidden" name="id_usuario" value="<?php echo $id_usuario ?>">
             <input type="hidden" name="method" value="EDIT">
-            <input type="submit" value="editar noticia"> <br>
+            <button type="submit" class="btn w-100 text-white bg-teal">Editar Noticia</button>
           <?php } else { ?>
             <input type="hidden" name="id_usuario" value="<?php echo $_SESSION['id'] ?>">
             <input type="hidden" name="method" value="NEW">
-
-            <input type="submit" value="crear noticia"> <br>
-
+            <button type="submit" class="btn w-100 text-white bg-teal">Crear Noticia</button>
           <?php } ?>
-
         </form>
       </div>
     </div>
   </div>
-
 </body>
 <style>
   body {
@@ -103,69 +99,16 @@
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: antiquewhite;
-    display: flex
-  }
-
-  #menu {
-    width: 20%;
-    height: 100%;
-    background-color: gray;
-  }
-
-  #cont-title {
-    width: 100%;
-    height: 20%;
-    background-color: teal;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .btn2 {
-    background-color: red;
-  }
-
-  #cont-title h1 {
-    font-size: 30px;
-  }
-
-  #table {
-    width: 80%;
-    height: 100%;
     background-color: burlywood;
     display: flex;
-    flex-direction: column;
   }
 
-  #cont-button-table-new {
-    width: 100%;
-    height: 15%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+  .bg-teal {
+    background-color: darkslategray;
   }
 
-  #button-table-new {
-    width: 150px;
-    height: 40px;
-    margin-right: 50px;
-    border-radius: 5px;
-    border: 1px solid white;
-  }
-
-  #cont-info-table {
-    width: 100%;
-    height: 85%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  #info-table {
-    width: 700px;
-    height: 500px;
-    background-color: azure;
+  .bg-teal:hover {
+    background-color: darkcyan;
   }
 </style>
 

@@ -54,20 +54,8 @@
   <?php } ?>
 
 
-  <div id="menu">
-    <div id="cont-title">
-      <h1>Panel UTN</h1>
-    </div>
-    <div id="lista-acciones">
-      <ul>
-        <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
-        <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-        <?php if ($admin) { ?>
-          <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
-        <?php } ?>
-      </ul>
-    </div>
-  </div>
+  <?php include_once('/xampp/htdocs/tp1/views/common/menu.php') ?>
+
   <div id="table">
     <h2>AGREGAR CATEGORIA</h2>
     <br>
@@ -108,27 +96,9 @@
     display: flex
   }
 
-  #menu {
-    width: 20%;
-    height: 100%;
-    background-color: gray;
-  }
-
-  #cont-title {
-    width: 100%;
-    height: 20%;
-    background-color: teal;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 
   .btn2 {
     background-color: red;
-  }
-
-  #cont-title h1 {
-    font-size: 30px;
   }
 
   #table {
