@@ -15,8 +15,17 @@
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
-  include_once('/xampp/htdocs/tp1/controllers/user.php');
+  @session_start();
+  require_once('../../db/db.php');
+
+  include_once('/xampp/htdocs/tp1/controllers/categorias.php');
+  $categorias = $nuestroResultado;
+
+  include_once('../../controllers/noticias.php');
+  @session_start();
+
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
+
 
   ?>
   <?php
@@ -33,59 +42,59 @@
       <ul>
         <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
         <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-        <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
+
+        <?php if ($admin) { ?>
+          <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
+        <?php } ?>
       </ul>
     </div>
   </div>
   <div id="table">
-    <h2>usuarios</h2>
-
-    <div id="cont-button-table-new">
-      <form action="usuario_edit.php">
-        <input id="button-table-new" type="submit" value="Agregar usuario">
-      </form>
-    </div>
-    <br>
-
+    <?php if ($id != 0) { ?>
+      <h2>EDITAR NOTICIA</h2>
+    <?php } else { ?>
+      <h2>INGRESE UNA NOTICIA</h2>
+    <?php } ?>
     <div id="cont-info-table">
       <div id="info-table">
+        <form action="../../controllers/noticias.php" method="GET">
+          <input type="text" name='title' placeholder="Ingrese el titulo de la noticia" value="<?php echo $title ?>" required> <br>
+          <input type="text" name='description' placeholder="Ingrese la descripcion de la noticia" value="<?php echo $description ?>" required> <br>
+          <input type="text" name='image' placeholder="Ingrese la imagen de la noticia" value="<?php echo $image ?>" required> <br>
+          <textarea name="text" id="text" required><?php echo $text ?></textarea><br>
 
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Edad</th>
-              <th>Fecha de creacion</th>
-              <th>Contraseña</th>
-              <th>Admin</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            foreach ($nuestroResultado as $fila) { ?>
-              <tr>
-                <td> <?php echo $fila->id ?></td>
-                <td><?php echo $fila->user_name ?></td>
-                <td><?php echo $fila->age  ?></td>
-                <td><?php echo $fila->creation_date ?></td>
-                <td><?php echo $fila->password ?></td>
-                <td><?php echo $fila->admin ?></td>
-                <td>
-                  <a href="usuario_edit.php?id=<?php echo $fila->id ?>">editar
-                  </a>
-                  <a href="../../controllers/user.php?method=DELETE&id=<?php echo $fila->id ?>">eliminar
-                  </a>
-                </td>
-              </tr>
-            <?php } ?>
-          </tbody>
-        </table>
+          <select name="id_categoria" id="id_categoria">
+            <?php if (!empty($categorias)): ?>
+              <?php foreach ($categorias as $categoria): ?>
+                <option value="<?= $categoria->id; ?>" <?= ($categoria->id == $id_categoria) ? 'selected' : ''; ?>>
+                  <?= $categoria->nombre; ?>
+
+                </option>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <option value="">No hay categorías disponibles</option>
+            <?php endif; ?>
+          </select>
+          </select>
+          <br>
+          <h1><?php $id_noticia ?></h1>
+          <?php if ($id != 0) { ?>
+            <input type="hidden" name="id" value="<?php echo $id ?>">
+            <input type="hidden" name="id_usuario" value="<?php echo $id_usuario ?>">
+            <input type="hidden" name="method" value="EDIT">
+            <input type="submit" value="editar noticia"> <br>
+          <?php } else { ?>
+            <input type="hidden" name="id_usuario" value="<?php echo $_SESSION['id'] ?>">
+            <input type="hidden" name="method" value="NEW">
+
+            <input type="submit" value="crear noticia"> <br>
+
+          <?php } ?>
+
+        </form>
       </div>
     </div>
   </div>
-
 
 </body>
 <style>

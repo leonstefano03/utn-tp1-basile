@@ -15,41 +15,16 @@
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
-  @session_start();
-  require_once('../../db/db.php');
-  $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
 
+  include_once('/xampp/htdocs/tp1/controllers/noticias.php');
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
 
-  $submitForm = isset($_POST['hidden']) ? intval($_POST['hidden']) : 0;
-
-  if ($submitForm) {
-    $title = isset($_POST['title']) ? $_POST['title'] : '';
-    $text = isset($_POST['text']) ? $_POST['text'] : '';
-    $image = isset($_POST['image']) ? $_POST['image'] : '';
-    $description = isset($_POST['description']) ? $_POST['description'] : '';
-    $creation_date = isset($_POST['creation_date']) && !empty($_POST['creation_date']) ? $_POST['creation_date'] : date('Y-m-d H:i:s');
-
-    $stmt = $conx->prepare('INSERT INTO noticias (title, description, creation_date, text, image, id_usuario) VALUES (?,?,?,?,?,?)');
-    $stmt->bind_param('sssssi', $title, $description, $creation_date, $text, $image, $_SESSION['id']);
-
-    if ($stmt->execute()) {
-      header('Location: noticias.php');
-      exit;
-    } else {
-      echo 'Error al insertar el registro: ' . $stmt->error;
-      header('Location: ../panel/noticias.php?error=1');
-      exit();
-    }
-
-    $stmt->close();
-  };
   ?>
   <?php
+
   if ($error) { ?>
     <h1>Error al cargar los datos, inténtelo nuevamente.</h1>
   <?php } ?>
-
 
   <div id="menu">
     <div id="cont-title">
@@ -59,30 +34,62 @@
       <ul>
         <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
         <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
-
-        <?php if ($admin) { ?>
-          <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
-        <?php } ?>
+        <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
       </ul>
     </div>
   </div>
   <div id="table">
-    <h2>Ingrese una noticia</h2>
+    <h2>noticias</h2>
+
+    <div id="cont-button-table-new">
+      <form action="noticias_edit.php">
+        <input id="button-table-new" type="submit" value="Agregar una noticia">
+      </form>
+    </div>
+    <br>
+
     <div id="cont-info-table">
       <div id="info-table">
-        <form action="" method="POST">
-          <input type="text" name='title' placeholder="Ingrese el titulo de la noticia" required> <br>
-          <input type="text" name='description' placeholder="Ingrese la descripcion de la noticia" required> <br>
-          <input type="text" name='image' placeholder="Ingrese la imagen de la noticia" required> <br>
-          <textarea name="text" id="text" required></textarea><br>
-          <input type="hidden" name="hidden" value="1">
-          <input type="submit" value="crear noticia"> <br>
-        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Titulo</th>
+              <th>Texto</th>
+              <th>Fecha de creacion</th>
+              <th>Imagen</th>
+              <th>Descripcion</th>
+              <th>categoria</th>
+              <th>usuario</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            foreach ($nuestroResultado as $fila) { ?>
+              <tr>
+                <td> <?php echo $fila->id ?></td>
+                <td><?php echo $fila->title ?></td>
+                <td><?php echo $fila->text  ?></td>
+                <td><?php echo $fila->creation_date ?></td>
+                <td><?php echo $fila->image ?></td>
+                <td><?php echo $fila->description ?></td>
+                <td><?php echo $fila->nombre_categoria ?></td>
+                <td><?php echo $fila->nombre_usuario ?></td>
+                <td>
+                  <a href="noticias_edit.php?id=<?php echo $fila->id ?>">editar
+                  </a>
+                  <a href="../../controllers/noticias.php?method=DELETE&id=<?php echo $fila->id ?>">eliminar
+                  </a>
+                </td>
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-
-
 
 
 </body>
