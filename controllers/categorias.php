@@ -1,10 +1,26 @@
 <?php
-require_once('../db/db.php');
+require_once('/xampp/htdocs/tp1/db/db.php');
 
 $submitForm = isset($_POST['hidden']) ? intval($_POST['hidden']) : 0;
 $method = isset($_GET['method']) ? $_GET['method'] : '';
 $id = isset($_GET['id']) ? ($_GET['id']) : 0;
 $name = isset($_GET['nombre']) ? $_GET['nombre'] : '';
+
+
+$stmt = $conx->prepare("SELECT * FROM categorias");
+
+$stmt->execute();
+
+$resultadoSTMT = $stmt->get_result();
+
+$nuestroResultado = [];
+
+while ($fila  = $resultadoSTMT->fetch_object()) {
+  $nuestroResultado[] = $fila;
+}
+
+$stmt->close();
+
 
 if ($method == 'NEW') {
 

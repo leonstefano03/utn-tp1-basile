@@ -12,21 +12,13 @@
 
 <body>
   <?php
-  ini_set('display_errors', 1);
-  ini_set('display_startup_errors', 1);
-  error_reporting(E_ALL);
+  include_once('../../controllers/user.php');
   @session_start();
-
-  include_once('/xampp/htdocs/tp1/controllers/categorias.php');
-
   $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
+
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
 
   ?>
-  <?php
-  if ($error) { ?>
-    <h1>Error al cargar los datos, inténtelo nuevamente.</h1>
-  <?php } ?>
 
 
   <div id="menu">
@@ -44,42 +36,43 @@
     </div>
   </div>
   <div id="table">
-    <h2>CATEGORIAS</h2>
+    <h2>usuarios</h2>
 
-    <div id="cont-button-table-new">
-      <form action="categorias_edit.php?method=NEW">
-        <input id="button-table-new" type="submit" value="Agregar categoria">
-      </form>
-    </div>
     <br>
 
 
     <div id="cont-info-table">
       <div id="info-table">
+        <form action="../../controllers/user.php">
 
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            foreach ($nuestroResultado as $fila) { ?>
-              <tr>
-                <td><?php echo $fila->nombre ?></td>
-                <td>
-                  <a href="categorias_edit.php?id=<?php echo $fila->id ?>">editar</a>
-                  <a href="../../controllers/categorias.php?method=DELETE&id=<?php echo $fila->id ?>">eliminar</a>
-                </td>
-              </tr>
-            <?php } ?>
-          </tbody>
-        </table>
+          <input type="text" name='user_name' placeholder="Ingrese el user name" value="<?php echo $user_name; ?>" required> <br>
+          <input type="number" name="age" placeholder="Ingrese la age" value="<?php echo $age; ?>" required> <br>
+          <input type="password" name="password" placeholder="ingrese su contraseña" value="<?php echo $password; ?>" required> <br>
+          <input type="number" name='admin' placeholder="Es admin" value="<?php echo $adminUser; ?>" required> <br>
+          <?php if ($id == 0) { ?>
+            <input type="datetime-local" name="creation_date"> <br>
+          <?php } else { ?>
+            <input type="hidden" name="creation_date" value="<?php echo $creation_date ?>"> <br>
+          <?php } ?>
+          <input type="hidden" name="id" value="<?php echo $id; ?>">
+          <input type="hidden" name="hidden" value="1">
+          <?php if ($id == 0) { ?>
+            <input type="hidden" name="method" value="NEW">
+          <?php } else { ?>
+            <input type="hidden" name="method" value="EDIT">
+          <?php } ?>
+
+          <input type="submit"> <br>
+        </form>
+
+        <?php
+        if ($error) { ?>
+          <h1>Error al cargar los datos, inténtelo nuevamente.</h1>
+        <?php } ?>
       </div>
     </div>
   </div>
+
 
 </body>
 <style>

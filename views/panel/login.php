@@ -36,7 +36,7 @@
     <input type="password" name="password" id="password">
     <input type="submit" id="submit">
   </form>
-  <a href="userRegister.php">
+  <a href="usuario_edit.php">
     registrarse
   </a>
   <?php
