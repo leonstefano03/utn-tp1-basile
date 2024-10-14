@@ -14,7 +14,7 @@
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
-  @session_start();
+  include_once('/xampp/htdocs/tp1/controllers/sessionValidate.php');
 
   include_once('/xampp/htdocs/tp1/controllers/categorias.php');
 
@@ -25,47 +25,48 @@
   <?php
   if ($error) { ?>
     <div class="alert alert-danger" role="alert">
-      Error al cargar los datos, inténtelo nuevamente.
+      Error loading data, please try again.
     </div>
   <?php } ?>
 
   <?php include_once('/xampp/htdocs/tp1/views/common/menu.php') ?>
 
   <div id="table" class="container mt-5" style="width: 80%;">
-    <h2 class="text-center mb-4">CATEGORÍAS</h2>
+    <h2 class="text-center mb-4">CATEGORIES</h2>
 
     <div id="cont-button-table-new" class="mb-4 d-flex justify-content-end">
       <form action="categorias_edit.php?method=NEW">
-        <button id="button-table-new" type="submit" class="btn text-white bg-teal">Agregar categoría</button>
+        <button id="button-table-new" type="submit" class="btn text-white bg-teal">Add Category</button>
       </form>
     </div>
 
     <div id="cont-info-table" class="d-flex justify-content-center">
-      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 700px;">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            foreach ($nuestroResultado as $fila) { ?>
+      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 55%;">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
               <tr>
-                <td><?php echo $fila->nombre ?></td>
-                <td>
-                  <a href="categorias_edit.php?id=<?php echo $fila->id ?>" class="text-decoration-none text-teal">editar</a>
-                  <a href="../../controllers/categorias.php?method=DELETE&id=<?php echo $fila->id ?>" class="text-decoration-none text-danger">eliminar</a>
-                </td>
+                <th>Name</th>
+                <th>Actions</th>
               </tr>
-            <?php } ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php
+              foreach ($nuestroResultado as $fila) { ?>
+                <tr>
+                  <td><?php echo $fila->nombre ?></td>
+                  <td>
+                    <a href="categorias_edit.php?id=<?php echo $fila->id ?>" class="text-decoration-none text-teal">edit</a>
+                    <a href="../../controllers/categorias.php?method=DELETE&id=<?php echo $fila->id ?>" class="text-decoration-none text-danger">delete</a>
+                  </td>
+                </tr>
+              <?php } ?>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-
 </body>
 <style>
   body {
@@ -73,7 +74,7 @@
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: burlywood;
+    background-color: #a3b18a;
     display: flex;
   }
 
@@ -82,7 +83,7 @@
   }
 
   .bg-teal:hover {
-    background-color: darkcyan;
+    background-color: #588157;
   }
 
   #button-table-new {

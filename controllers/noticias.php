@@ -1,53 +1,45 @@
 <?php
 require_once('/xampp/htdocs/tp1/db/db.php');
-include_once('/xampp/htdocs/tp1/controllers/sessionValidate.php');
-
-
+@session_start();
 $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
-$submitForm = isset($_GET['hidden']) ? intval($_GET['hidden']) : 0;
-$method = isset($_GET['method']) ? $_GET['method'] : '';
-$id = isset($_GET['id']) ? $_GET['id'] : 0;
-$title = isset($_GET['title']) ? $_GET['title'] : '';
-$id_noticia = isset($_GET['id_noticia']) ? $_GET['id_noticia'] : '';
-
-$description = isset($_GET['description']) ? $_GET['description'] : '';
-$text = isset($_GET['text']) ? $_GET['text'] : '';
-$image = isset($_GET['image']) ? $_GET['image'] : '';
+$submitForm = isset($_POST['hidden']) ? intval($_POST['hidden']) : 0;
+$method = isset($_POST['method']) ? $_POST['method'] : '';
+$id = isset($_POST['id']) ? $_POST['id'] : 0;
+$title = isset($_POST['title']) ? $_POST['title'] : '';
+$image = isset($_POST['image']) ? $_POST['image'] : '';
+$id_noticia = isset($_POST['id_noticia']) ? $_POST['id_noticia'] : '';
+$description = isset($_POST['description']) ? $_POST['description'] : '';
+$text = isset($_POST['text']) ? $_POST['text'] : '';
 $id_usuario = isset($_SESSION['id']) ? intval($_SESSION['id']) : 0;
-$id_categoria = isset($_GET['id_categoria']) ? intval($_GET['id_categoria']) : 0;
+$id_categoria = isset($_POST['id_categoria']) ? intval($_POST['id_categoria']) : 0;
 $creation_date = '';
-
-if ($id == 0) {
-  $stmt = $conx->prepare("
-  SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
-  FROM noticias n
-  INNER JOIN categorias c ON n.id_categoria = c.id
-  INNER JOIN usuarios u ON n.id_usuario = u.id
-");
-
-  $stmt->execute();
-
-  $resultadoSTMT = $stmt->get_result();
-
-  $nuestroResultado = [];
-
-  while ($fila  = $resultadoSTMT->fetch_object()) {
-    $nuestroResultado[] = $fila;
-  }
-
-  $stmt->close();
-}
-
-
 
 
 if ($method == 'NEW') {
 
+  if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
 
-  $creation_date = isset($_GET['creation_date']) && !empty($_GET['creation_date']) ? $_GET['creation_date'] : date('Y-m-d H:i:s');
+    $uploadDir = '../uploads/';
 
-  $stmt = $conx->prepare('INSERT INTO noticias (title, description, image, creation_date, id_usuario, id_categoria, text) VALUES (?,?,?,?,?,?, ?)');
+    if (!is_dir($uploadDir)) {
+      mkdir($uploadDir, 0777, true);
+    }
 
+    $rutaFinal = $uploadDir . basename($_FILES['image']['name']);
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $rutaFinal)) {
+      $image = 'uploads/' . basename($_FILES['image']['name']);
+    } else {
+      echo 'Error al subir la imagen.';
+      exit;
+    }
+  } else {
+    echo 'No se ha subido ninguna imagen o ha ocurrido un error.';
+    exit;
+  }
+
+  $creation_date = isset($_POST['creation_date']) && !empty($_POST['creation_date']) ? $_POST['creation_date'] : date('Y-m-d H:i:s');
+
+  $stmt = $conx->prepare('INSERT INTO noticias (title, description, image, creation_date, id_usuario, id_categoria, text) VALUES (?, ?, ?, ?, ?, ?, ?)');
   $stmt->bind_param('ssssiis', $title, $description, $image, $creation_date, $id_usuario, $id_categoria, $text);
 
   if ($stmt->execute()) {
@@ -59,7 +51,9 @@ if ($method == 'NEW') {
   }
 
   $stmt->close();
-};
+}
+
+
 
 if ($method == 'DELETE') {
   $stmt = $conx->prepare('DELETE FROM noticias WHERE id = ?');
@@ -76,11 +70,30 @@ if ($method == 'DELETE') {
   $stmt->close();
 }
 if ($method == 'EDIT') {
-  $creation_date = isset($_GET['creation_date']) && !empty($_GET['creation_date']) ? $_GET['creation_date'] : date('Y-m-d H:i:s');
+  if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+
+    $uploadDir = '../uploads/';
+
+    if (!is_dir($uploadDir)) {
+      mkdir($uploadDir, 0777, true);
+    }
+
+    $rutaFinal = $uploadDir . basename($_FILES['image']['name']);
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $rutaFinal)) {
+      $image = 'uploads/' . basename($_FILES['image']['name']);
+    } else {
+      echo 'Error al subir la imagen.';
+      exit;
+    }
+  } else {
+    echo 'No se ha subido ninguna imagen o ha ocurrido un error.';
+    exit;
+  }
+
+  $creation_date = isset($_POST['creation_date']) && !empty($_POST['creation_date']) ? $_POST['creation_date'] : date('Y-m-d H:i:s');
 
   $stmt = $conx->prepare('UPDATE noticias SET title = ?, description = ?, image = ?, creation_date = ?, text = ?, id_usuario = ?, id_categoria = ? WHERE id = ?');
 
-  // Asegurarse de que bind_param tiene el formato correcto para 7 parámetros
   $stmt->bind_param('sssssiii', $title, $description, $image, $creation_date, $text, $id_usuario, $id_categoria, $id);
 
   if ($stmt->execute()) {
@@ -92,7 +105,7 @@ if ($method == 'EDIT') {
     exit();
   }
 
-  $stmt->close();  // Cerramos la declaración preparada
+  $stmt->close();
 }
 
 
@@ -122,4 +135,61 @@ if ($id != 0) {
     $usuario = $noticia->nombre_usuario;
     $id_usuario = $noticia->id_usuario;
   }
+}
+
+function obtenerNoticiasPorCategoria($conx, $idCategoria)
+{
+
+  if (empty($idCategoria)) {
+    return [];
+  }
+
+  $stmt = $conx->prepare("
+    SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
+    FROM noticias n
+    INNER JOIN categorias c ON n.id_categoria = c.id
+    INNER JOIN usuarios u ON n.id_usuario = u.id
+    WHERE n.id_categoria = ?
+    ORDER BY n.creation_date DESC
+  ");
+
+  $stmt->bind_param("i", $idCategoria);
+  $stmt->execute();
+
+  $resultadoSTMT = $stmt->get_result();
+
+  $nuestroResultado = [];
+
+  while ($fila  = $resultadoSTMT->fetch_object()) {
+    $nuestroResultado[] = $fila;
+  }
+
+  $stmt->close();
+
+  return $nuestroResultado;
+}
+
+function obtenerTodasLasNoticias($conx)
+{
+  $stmt = $conx->prepare("
+  SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
+  FROM noticias n
+  INNER JOIN categorias c ON n.id_categoria = c.id
+  INNER JOIN usuarios u ON n.id_usuario = u.id
+  ORDER BY n.creation_date DESC
+
+");
+
+  $stmt->execute();
+
+  $resultadoSTMT = $stmt->get_result();
+
+  $nuestroResultado = [];
+
+  while ($fila  = $resultadoSTMT->fetch_object()) {
+    $nuestroResultado[] = $fila;
+  }
+
+  $stmt->close();
+  return $nuestroResultado;
 }

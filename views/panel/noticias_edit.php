@@ -14,7 +14,8 @@
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
-  @session_start();
+  include_once('/xampp/htdocs/tp1/controllers/sessionValidate.php');
+
   require_once('../../db/db.php');
 
   include_once('/xampp/htdocs/tp1/controllers/categorias.php');
@@ -22,49 +23,49 @@
 
   include_once('../../controllers/noticias.php');
   @session_start();
-
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
   ?>
   <?php if ($error) { ?>
     <div class="alert alert-danger" role="alert">
-      Error al cargar los datos, inténtelo nuevamente.
+      Error loading data, please try again.
     </div>
   <?php } ?>
 
   <?php include_once('/xampp/htdocs/tp1/views/common/menu.php') ?>
 
   <div id="table" class="container mt-5" style="width: 80%;">
+    <?php if ($id != 0) { ?>
+      <h2 class="text-center mb-4">EDIT NEWS</h2>
+    <?php } else { ?>
+      <h2 class="text-center mb-4">ENTER A NEWS</h2>
+    <?php } ?>
     <div id="cont-info-table" class="d-flex justify-content-center">
-      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 700px;">
-        <?php if ($id != 0) { ?>
-          <h2 class="text-center mb-4">EDITAR NOTICIA</h2>
-        <?php } else { ?>
-          <h2 class="text-center mb-4">INGRESE UNA NOTICIA</h2>
-        <?php } ?>
-        <form action="../../controllers/noticias.php" method="GET">
+      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 75%;">
+
+        <form action="../../controllers/noticias.php" method="POST" enctype="multipart/form-data">
 
           <div class="mb-3">
-            <label for="title" class="form-label">Título de la noticia</label>
-            <input type="text" name="title" id="title" class="form-control" placeholder="Ingrese el título de la noticia" value="<?php echo $title ?>" required>
+            <label for="title" class="form-label">News Title</label>
+            <input type="text" name="title" id="title" class="form-control" placeholder="Enter the news title" value="<?php echo $title ?>" required>
           </div>
 
           <div class="mb-3">
-            <label for="description" class="form-label">Descripción</label>
-            <input type="text" name="description" id="description" class="form-control" placeholder="Ingrese la descripción" value="<?php echo $description ?>" required>
+            <label for="description" class="form-label">Description</label>
+            <input type="text" name="description" id="description" class="form-control" placeholder="Enter the description" value="<?php echo $description ?>" required>
           </div>
 
           <div class="mb-3">
-            <label for="image" class="form-label">Imagen</label>
-            <input type="text" name="image" id="image" class="form-control" placeholder="Ingrese la URL de la imagen" value="<?php echo $image ?>" required>
+            <label for="image" class="form-label">Image</label>
+            <input type="file" name="image" id="image" class="form-control" required>
           </div>
 
           <div class="mb-3">
-            <label for="text" class="form-label">Texto de la noticia</label>
-            <textarea name="text" id="text" class="form-control" rows="5" placeholder="Escriba el texto aquí..." required><?php echo $text ?></textarea>
+            <label for="text" class="form-label">News Text</label>
+            <textarea name="text" id="text" class="form-control" rows="5" placeholder="Write the text here..." required><?php echo $text ?></textarea>
           </div>
 
           <div class="mb-3">
-            <label for="id_categoria" class="form-label">Categoría</label>
+            <label for="id_categoria" class="form-label">Category</label>
             <select name="id_categoria" id="id_categoria" class="form-select">
               <?php if (!empty($categorias)) : ?>
                 <?php foreach ($categorias as $categoria) : ?>
@@ -73,7 +74,7 @@
                   </option>
                 <?php endforeach; ?>
               <?php else : ?>
-                <option value="">No hay categorías disponibles</option>
+                <option value="">No categories available</option>
               <?php endif; ?>
             </select>
           </div>
@@ -82,11 +83,11 @@
             <input type="hidden" name="id" value="<?php echo $id ?>">
             <input type="hidden" name="id_usuario" value="<?php echo $id_usuario ?>">
             <input type="hidden" name="method" value="EDIT">
-            <button type="submit" class="btn w-100 text-white bg-teal">Editar Noticia</button>
+            <button type="submit" class="btn w-100 text-white bg-teal">Edit News</button>
           <?php } else { ?>
             <input type="hidden" name="id_usuario" value="<?php echo $_SESSION['id'] ?>">
             <input type="hidden" name="method" value="NEW">
-            <button type="submit" class="btn w-100 text-white bg-teal">Crear Noticia</button>
+            <button type="submit" class="btn w-100 text-white bg-teal">Create News</button>
           <?php } ?>
         </form>
       </div>
@@ -99,7 +100,7 @@
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: burlywood;
+    background-color: #a3b18a;
     display: flex;
   }
 
@@ -108,7 +109,7 @@
   }
 
   .bg-teal:hover {
-    background-color: darkcyan;
+    background-color: #588157;
   }
 </style>
 

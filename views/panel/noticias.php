@@ -14,15 +14,17 @@
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
+  include_once('/xampp/htdocs/tp1/controllers/sessionValidate.php');
 
   include_once('/xampp/htdocs/tp1/controllers/noticias.php');
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
+  $noticias = obtenerTodasLasNoticias($conx);
 
   ?>
   <?php
   if ($error) { ?>
     <div class="alert alert-danger" role="alert">
-      Error al cargar los datos, inténtelo nuevamente.
+      Error loading the data, please try again.
     </div>
   <?php } ?>
 
@@ -30,63 +32,78 @@
 
   <div id="table" class="container mt-5" style="width: 80%;">
 
+    <h2 class="text-center mb-4">NEWS</h2>
 
     <div id="cont-button-table-new" class="mb-4 d-flex justify-content-end">
       <form action="noticias_edit.php">
-        <button id="button-table-new" type="submit" class="btn text-white bg-teal">Agregar una noticia</button>
+        <button id="button-table-new" type="submit" class="btn text-white bg-teal">Add a news item</button>
       </form>
     </div>
 
     <div id="cont-info-table" class="d-flex justify-content-center">
 
-      <div id="info-table" class="p-4 rounded shadow bg-white" style="width: 900px;">
-        <h2 class="text-center mb-4">Noticias</h2>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Título</th>
-              <th>Texto</th>
-              <th>Fecha de creación</th>
-              <th>Imagen</th>
-              <th>Descripción</th>
-              <th>Categoría</th>
-              <th>Usuario</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php
-            foreach ($nuestroResultado as $fila) { ?>
+      <div id="info-table" class="p-4 rounded shadow bg-white" style="max-width:85%;  max-height: 75vh;
+    flex-grow: 1;overflow: auto;">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
               <tr>
-                <td><?php echo $fila->id ?></td>
-                <td><?php echo $fila->title ?></td>
-                <td><?php echo $fila->text ?></td>
-                <td><?php echo $fila->creation_date ?></td>
-                <td><?php echo $fila->image ?></td>
-                <td><?php echo $fila->description ?></td>
-                <td><?php echo $fila->nombre_categoria ?></td>
-                <td><?php echo $fila->nombre_usuario ?></td>
-                <td>
-                  <a href="noticias_edit.php?id=<?php echo $fila->id ?>" class="text-decoration-none text-teal">editar</a>
-                  <a href="../../controllers/noticias.php?method=DELETE&id=<?php echo $fila->id ?>" class="text-decoration-none text-danger">eliminar</a>
-                </td>
+                <th scope="col">ID</th>
+                <th scope="col">Title</th>
+                <th scope="col">Text</th>
+                <th scope="col">Creation Date</th>
+                <th scope="col">Image</th>
+                <th scope="col">Description</th>
+                <th scope="col">Category</th>
+                <th scope="col">User</th>
+                <th scope="col">Actions</th>
               </tr>
-            <?php } ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody style="width: 100%;">
+              <?php
+              foreach ($noticias as $fila) { ?>
+                <tr>
+                  <td><?php echo $fila->id ?></td>
+                  <td><?php echo $fila->title ?></td>
+                  <td class="truncate"><?php echo $fila->text ?></td>
+                  <td class="truncate"><?php echo $fila->creation_date ?></td>
+                  <td class="truncate">
+                    <img style="width: 40px; object-fit: cover;" src="../../<?php echo $fila->image ?>" alt="<?php echo $fila->title ?>">
+                  </td>
+                  <td class="truncate"><?php echo $fila->description ?></td>
+                  <td><?php echo $fila->nombre_categoria ?></td>
+                  <td><?php echo $fila->nombre_usuario ?></td>
+
+                  <td>
+                    <form action="noticias_edit.php" method="POST" style="display:inline;">
+                      <input type="hidden" name="id" value="<?php echo $fila->id ?>">
+                      <button type="submit" class="btn btn-primary">Edit</button>
+                    </form>
+                    <form action="../../controllers/noticias.php" method="POST" style="display:inline;">
+                      <input type="hidden" name="method" value="DELETE">
+                      <input type="hidden" name="id" value="<?php echo $fila->id ?>">
+                      <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                  </td>
+
+                </tr>
+              <?php } ?>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
 </body>
+
 <style>
   body {
     width: 100vw;
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: burlywood;
+    background-color: #a3b18a;
     display: flex;
   }
 
@@ -95,11 +112,11 @@
   }
 
   .bg-teal:hover {
-    background-color: darkcyan;
+    background-color: #588157;
   }
 
   #button-table-new {
-    width: 200px;
+    width: 150px;
     height: 50px;
     margin-right: 50px;
     border-radius: 5px;
@@ -107,6 +124,17 @@
 
   #info-table {
     background-color: azure;
+  }
+
+  .table a {
+    flex-wrap: wrap;
+  }
+
+  .truncate {
+    max-width: 150px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 </style>
 

@@ -1,14 +1,15 @@
 <div id="menu">
   <div id="cont-title">
-    <h1>Panel UTN</h1>
+    <h1>UTN Panel</h1>
   </div>
   <div id="lista-acciones">
     <ul>
-      <li><a href="noticias.php" id="link-noticias">Noticias</a></li>
-      <li><a href="categorias.php" id="link-categorias">Categorías</a></li>
+      <li><a href="noticias.php" id="link-noticias">News</a></li>
+      <li><a href="categorias.php" id="link-categorias">Categories</a></li>
       <?php if ($admin) { ?>
-        <li><a href="usuarios.php" id="link-usuarios">Usuarios</a></li>
+        <li><a href="usuarios.php" id="link-usuarios">Users</a></li>
       <?php } ?>
+      <li><a href="../../controllers/cerrarSesion.php" id="link-categorias" class="sesion">Log Out</a></li>
     </ul>
   </div>
 </div>
@@ -17,16 +18,14 @@
   #menu {
     width: 20%;
     height: 100%;
-    background-color: gray;
+    background-color: #588157;
     border-right: 2px solid rgba(0, 0, 0, 0.2);
-
-
   }
 
   #cont-title {
     width: 100%;
     height: 20%;
-    background-color: teal;
+    background-color: #606c38;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,37 +33,34 @@
   }
 
   #cont-title h1 {
+    color: white;
     font-size: 30px;
   }
 
   #lista-acciones ul {
     list-style: none;
-    /* Eliminar viñetas */
     padding: 0;
     margin: 0;
   }
 
   #lista-acciones li {
     margin: 10px 0;
-    /* Espaciado entre los enlaces */
   }
 
   #lista-acciones a {
     text-decoration: none;
-    /* Eliminar subrayado */
     color: white;
-    /* Cambiar el color del texto */
     background-color: darkslategray;
-    /* Color de fondo para los enlaces */
     padding: 10px 15px;
-    /* Añadir espacio alrededor del texto */
     display: block;
     transition: background-color 0.3s ease;
-    /* Efecto suave al cambiar el color */
   }
 
   #lista-acciones a:hover {
-    background-color: darkcyan;
-    /* Cambiar color de fondo al pasar el ratón */
+    background-color: #a3b18a;
+  }
+
+  #lista-acciones .sesion:hover {
+    background-color: #780000;
   }
 </style>

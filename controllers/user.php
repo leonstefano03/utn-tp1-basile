@@ -1,6 +1,6 @@
 <?php
 require_once('/xampp/htdocs/tp1/db/db.php');
-include_once('/xampp/htdocs/tp1/controllers/sessionValidate.php');
+
 $admin = isset($_SESSION["is_admin"]) ? intval($_SESSION["is_admin"]) : 0;
 $submitForm = isset($_GET['hidden']) ? intval($_GET['hidden']) : 0;
 $method = isset($_GET['method']) ? $_GET['method'] : '';
@@ -10,6 +10,7 @@ $password = isset($_GET['password']) ? $_GET['password'] : '';
 $adminUser = isset($_GET['adminUser']) ? $_GET['adminUser'] : 0;
 $age = isset($_GET['age']) ? intval($_GET['age']) : 0;
 $creation_date = '';
+
 
 if ($id == 0) {
   $stmt = $conx->prepare("SELECT * FROM usuarios");
