@@ -24,13 +24,29 @@
   // Cambia esta línea para capturar correctamente la categoría seleccionada
   $categoriaSeleccionada = isset($_GET['id_categoria']) ? intval($_GET['id_categoria']) : 0;
 
-  // Aquí se obtienen las noticias según la categoría seleccionada
+
+
+  $pagina_actual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+  $limit = 6;
+  $offset = ($pagina_actual - 1) * $limit;
+
+  // Obtener el total de noticias
+
+
+  // Calcular el número total de páginas
+
+  // Obtener las noticias (filtradas por categoría si es necesario)
+  $categoriaSeleccionada = isset($_GET['id_categoria']) ? intval($_GET['id_categoria']) : 0;
   if ($categoriaSeleccionada > 0) {
-    $noticiasPorCategoria = obtenerNoticiasPorCategoria($conx, $categoriaSeleccionada);
+    $noticiasPorCategoria = obtenerNoticiasPorCategoria($conx, $categoriaSeleccionada, $limit, $offset);
+    $total_noticias = obtenerTotalNoticias($conx, $categoriaSeleccionada);
   } else {
-    $noticiasPorCategoria = obtenerTodasLasNoticias($conx);
+    $noticiasPorCategoria = obtenerTodasLasNoticias($conx, $limit, $offset);
+    $total_noticias = obtenerTotalNoticias($conx, 0);
   }
+  $total_paginas = ceil($total_noticias / $limit);
   ?>
+
 
   <div class="container mt-5">
     <div class="contain-title">
@@ -80,6 +96,32 @@
           <p>No news available for the selected category.</p>
         <?php } ?>
       </div>
+      <!-- Paginación -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <!-- Botón de Anterior -->
+          <?php if ($pagina_actual > 1): ?>
+            <li class="page-item">
+              <a class="page-link" href="?pagina=<?php echo $pagina_actual - 1; ?>">Anterior</a>
+            </li>
+          <?php endif; ?>
+
+          <!-- Botones de número de página -->
+          <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+            <li class="page-item <?php if ($pagina_actual == $i) echo 'active'; ?>">
+              <a class="page-link" href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a>
+            </li>
+          <?php endfor; ?>
+
+          <!-- Botón de Siguiente -->
+          <?php if ($pagina_actual < $total_paginas): ?>
+            <li class="page-item">
+              <a class="page-link" href="?pagina=<?php echo $pagina_actual + 1; ?>">Siguiente</a>
+            </li>
+          <?php endif; ?>
+        </ul>
+      </nav>
+
     </div>
   </div>
 </body>

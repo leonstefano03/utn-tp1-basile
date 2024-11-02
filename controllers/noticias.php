@@ -137,7 +137,7 @@ if ($id != 0) {
   }
 }
 
-function obtenerNoticiasPorCategoria($conx, $idCategoria)
+function obtenerNoticiasPorCategoria($conx, $idCategoria, $limit, $offset)
 {
 
   if (empty($idCategoria)) {
@@ -151,9 +151,10 @@ function obtenerNoticiasPorCategoria($conx, $idCategoria)
     INNER JOIN usuarios u ON n.id_usuario = u.id
     WHERE n.id_categoria = ?
     ORDER BY n.creation_date DESC
+    LIMIT ? OFFSET ?
   ");
 
-  $stmt->bind_param("i", $idCategoria);
+  $stmt->bind_param("iii", $idCategoria, $limit, $offset);
   $stmt->execute();
 
   $resultadoSTMT = $stmt->get_result();
@@ -169,27 +170,41 @@ function obtenerNoticiasPorCategoria($conx, $idCategoria)
   return $nuestroResultado;
 }
 
-function obtenerTodasLasNoticias($conx)
+function obtenerTodasLasNoticias($conx, $limit, $offset)
 {
   $stmt = $conx->prepare("
-  SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
-  FROM noticias n
-  INNER JOIN categorias c ON n.id_categoria = c.id
-  INNER JOIN usuarios u ON n.id_usuario = u.id
-  ORDER BY n.creation_date DESC
+        SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
+        FROM noticias n
+        INNER JOIN categorias c ON n.id_categoria = c.id
+        INNER JOIN usuarios u ON n.id_usuario = u.id
+        ORDER BY n.creation_date DESC
+        LIMIT ? OFFSET ?
+    ");
 
-");
+  // Asigna los parámetros de límite y desplazamiento
+  $stmt->bind_param("ii", $limit, $offset);
 
   $stmt->execute();
-
   $resultadoSTMT = $stmt->get_result();
-
   $nuestroResultado = [];
 
-  while ($fila  = $resultadoSTMT->fetch_object()) {
+  while ($fila = $resultadoSTMT->fetch_object()) {
     $nuestroResultado[] = $fila;
   }
 
   $stmt->close();
   return $nuestroResultado;
+}
+function obtenerTotalNoticias($conx, $idCategoria)
+{
+  $sql = "SELECT COUNT(*) AS total FROM noticias";
+  if (isset($idCategoria) && !empty($idCategoria) && $idCategoria > 0) {
+    $sql . "WHERE id_categoria = $idCategoria";
+  }
+  $stmt = $conx->prepare($sql);
+  $stmt->execute();
+  $resultadoSTMT = $stmt->get_result();
+  $total = $resultadoSTMT->fetch_object()->total;
+  $stmt->close();
+  return $total;
 }
