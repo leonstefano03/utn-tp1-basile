@@ -56,7 +56,7 @@
 
           <div class="mb-3">
             <label for="image" class="form-label">Image</label>
-            <input type="file" name="image" id="image" class="form-control" required>
+            <input type="file" name="image" id="image" class="form-control" value="<?php echo $image; ?>" required>
           </div>
 
           <div class="mb-3">
