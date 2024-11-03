@@ -2,6 +2,9 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+$pagina_actual = isset($_POST['pagina']) ? (int)$_POST['pagina'] : 1;
+$categoria_actual = isset($_POST['id_categoria']) ? (int)$_POST['id_categoria'] : 0;
+$searchInput = isset($_POST['searchInput']) ? $_POST['searchInput'] : '';
 
 if (isset($_POST['id'])) {
   $id_noticia = intval($_POST['id']);
@@ -50,16 +53,12 @@ if (isset($_POST['id'])) {
         <p><strong>Category:</strong> <?php echo htmlspecialchars($noticia->nombre_categoria); ?></p>
         <p><strong>Publication Date:</strong> <?php echo htmlspecialchars($noticia->creation_date); ?></p>
 
-        <a href="./dashboard.php" class="btn">Back to News</a>
+        <a href="./dashboard.php?pagina=<?php echo $pagina_actual; ?>&id_categoria=<?php echo $categoria_actual; ?>&searchInput=<?php echo $searchInput; ?>" class="btn">Back to News</a>
       </div>
 
 
     </div>
 </body>
-
-
-
-
 
 <style>
   body {
@@ -186,19 +185,6 @@ if (isset($_POST['id'])) {
     height: 40px;
   }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 
 </html>

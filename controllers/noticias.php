@@ -136,53 +136,47 @@ if ($id != 0) {
     $id_usuario = $noticia->id_usuario;
   }
 }
-
-function obtenerNoticiasPorCategoria($conx, $idCategoria, $limit, $offset)
+function obtenerNoticias($conx, $limit, $offset, $idCategoria, $searchInput)
 {
-
-  if (empty($idCategoria)) {
-    return [];
-  }
-
-  $stmt = $conx->prepare("
-    SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
-    FROM noticias n
-    INNER JOIN categorias c ON n.id_categoria = c.id
-    INNER JOIN usuarios u ON n.id_usuario = u.id
-    WHERE n.id_categoria = ?
-    ORDER BY n.creation_date DESC
-    LIMIT ? OFFSET ?
-  ");
-
-  $stmt->bind_param("iii", $idCategoria, $limit, $offset);
-  $stmt->execute();
-
-  $resultadoSTMT = $stmt->get_result();
-
-  $nuestroResultado = [];
-
-  while ($fila  = $resultadoSTMT->fetch_object()) {
-    $nuestroResultado[] = $fila;
-  }
-
-  $stmt->close();
-
-  return $nuestroResultado;
-}
-
-function obtenerTodasLasNoticias($conx, $limit, $offset)
-{
-  $stmt = $conx->prepare("
+  $sql = "
         SELECT n.*, c.nombre AS nombre_categoria, u.user_name AS nombre_usuario
         FROM noticias n
         INNER JOIN categorias c ON n.id_categoria = c.id
         INNER JOIN usuarios u ON n.id_usuario = u.id
-        ORDER BY n.creation_date DESC
-        LIMIT ? OFFSET ?
-    ");
+        WHERE 1 = 1
+    ";
 
-  // Asigna los parámetros de límite y desplazamiento
-  $stmt->bind_param("ii", $limit, $offset);
+  $params = [];
+  $types = '';
+
+  // Añadir condiciones dinámicamente
+  if ($idCategoria > 0) {
+    $sql .= " AND n.id_categoria = ?";
+    $params[] = $idCategoria;
+    $types .= 'i';
+  }
+
+  if (!empty($searchInput)) {
+    $sql .= " AND n.title LIKE ?";
+    $params[] = '%' . $searchInput . '%';
+    $types .= 's';
+  }
+
+  $sql .= " ORDER BY n.creation_date DESC";
+
+  if ($limit > 0) {
+    $sql .= " LIMIT ? OFFSET ?";
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= 'ii';
+  }
+
+  $stmt = $conx->prepare($sql);
+
+  // Verifica si hay parámetros antes de enlazar
+  if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+  }
 
   $stmt->execute();
   $resultadoSTMT = $stmt->get_result();
@@ -195,13 +189,30 @@ function obtenerTodasLasNoticias($conx, $limit, $offset)
   $stmt->close();
   return $nuestroResultado;
 }
-function obtenerTotalNoticias($conx, $idCategoria)
+
+function obtenerTotalNoticias($conx, $idCategoria, $searchInput)
 {
-  $sql = "SELECT COUNT(*) AS total FROM noticias";
-  if (isset($idCategoria) && !empty($idCategoria) && $idCategoria > 0) {
-    $sql . "WHERE id_categoria = $idCategoria";
+  $sql = "SELECT COUNT(*) AS total FROM noticias WHERE 1 = 1";
+  $params = [];
+  $types = '';
+
+  if ($idCategoria > 0) {
+    $sql .= " AND id_categoria = ?";
+    $params[] = $idCategoria;
+    $types .= 'i';
   }
+  if ($searchInput != '') {
+    $sql .= " AND title LIKE ?";
+    $params[] = '%' . $searchInput . '%';
+    $types .= 's';
+  }
+
   $stmt = $conx->prepare($sql);
+
+  if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+  }
+
   $stmt->execute();
   $resultadoSTMT = $stmt->get_result();
   $total = $resultadoSTMT->fetch_object()->total;

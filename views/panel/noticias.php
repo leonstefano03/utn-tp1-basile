@@ -18,7 +18,7 @@
 
   include_once('/xampp/htdocs/tp1/controllers/noticias.php');
   $error = isset($_GET['error']) ? intval($_GET['error']) : 0;
-  $noticias = obtenerTodasLasNoticias($conx);
+  $noticias = obtenerNoticias($conx, 0, 0, 0, '');
 
   ?>
   <?php

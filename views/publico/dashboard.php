@@ -17,33 +17,30 @@
   error_reporting(E_ALL);
 
   include_once('/xampp/htdocs/tp1/controllers/categorias.php');
-  $categorias = $nuestroResultado; // Asumiendo que esto contiene las categorías
+  $categorias = $nuestroResultado;
 
   include_once('/xampp/htdocs/tp1/controllers/noticias.php');
 
-  // Cambia esta línea para capturar correctamente la categoría seleccionada
   $categoriaSeleccionada = isset($_GET['id_categoria']) ? intval($_GET['id_categoria']) : 0;
-
-
+  $searchInput = isset($_GET['searchInput']) ? $_GET['searchInput'] : '';
 
   $pagina_actual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
   $limit = 6;
   $offset = ($pagina_actual - 1) * $limit;
 
-  // Obtener el total de noticias
-
-
-  // Calcular el número total de páginas
-
-  // Obtener las noticias (filtradas por categoría si es necesario)
-  $categoriaSeleccionada = isset($_GET['id_categoria']) ? intval($_GET['id_categoria']) : 0;
   if ($categoriaSeleccionada > 0) {
-    $noticiasPorCategoria = obtenerNoticiasPorCategoria($conx, $categoriaSeleccionada, $limit, $offset);
-    $total_noticias = obtenerTotalNoticias($conx, $categoriaSeleccionada);
+    $allNoticias = obtenerNoticias($conx, $limit, $offset, $categoriaSeleccionada, '');
+    $total_noticias = obtenerTotalNoticias($conx, $categoriaSeleccionada, '');
   } else {
-    $noticiasPorCategoria = obtenerTodasLasNoticias($conx, $limit, $offset);
-    $total_noticias = obtenerTotalNoticias($conx, 0);
+    $allNoticias = obtenerNoticias($conx, $limit, $offset, 0, '');
+    $total_noticias = obtenerTotalNoticias($conx, 0, '');
   }
+
+  if ($searchInput != '') {
+    $allNoticias = obtenerNoticias($conx, $limit, $offset, $categoriaSeleccionada, $searchInput);
+    $total_noticias = obtenerTotalNoticias($conx, 0,  $searchInput);
+  }
+
   $total_paginas = ceil($total_noticias / $limit);
   ?>
 
@@ -51,29 +48,34 @@
   <div class="container mt-5">
     <div class="contain-title">
       <h1 class="text-center mb-1">News UTN</h1>
-
-      <div id="cont-button-table-new" class=" d-flex justify-content-end">
-        <form action="" method="GET" class="category-select ">
-          <div class="form-group d-flex ">
-
-            <label for="categoria" class="form-label text-black">Select Category:</label>
-            <select name="id_categoria" id="categoria" class="form-select" onchange="this.form.submit()">
-              <option value="0">All Categories</option>
-              <?php foreach ($categorias as $categoria) { ?>
-                <option value="<?php echo $categoria->id; ?>" <?php echo ($categoria->id == $categoriaSeleccionada) ? 'selected' : ''; ?>>
-                  <?php echo $categoria->nombre; ?>
-                </option>
-              <?php } ?>
-            </select>
-          </div>
+      <div class="selections d-flex justify-content-around">
+        <form id="cont-button-table-new" class=" d-flex" role="search">
+          <input class="form-control me-2" type="search" name="searchInput" placeholder="Search New" aria-label="Search" onchange="this.form.submit()">
+          <input type="hidden" name="id_categoria" value="<?php echo $categoriaSeleccionada; ?>">
         </form>
+        <div id="cont-button-table-new" class=" d-flex justify-content-end">
+          <form action="" method="GET" class="category-select ">
+            <div class="form-group d-flex ">
+
+              <label for="categoria" class="form-label text-black">Select Category:</label>
+              <select name="id_categoria" id="categoria" class="form-select" onchange="this.form.submit()">
+                <option value="0">All Categories</option>
+                <?php foreach ($categorias as $categoria) { ?>
+                  <option value="<?php echo $categoria->id; ?>" <?php echo ($categoria->id == $categoriaSeleccionada) ? 'selected' : ''; ?>>
+                    <?php echo $categoria->nombre; ?>
+                  </option>
+                <?php } ?>
+              </select>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
     <div class="contain-cards">
 
       <div class="row">
-        <?php if (!empty($noticiasPorCategoria)) { ?>
-          <?php foreach ($noticiasPorCategoria as $noticia) { ?>
+        <?php if (!empty($allNoticias)) { ?>
+          <?php foreach ($allNoticias as $noticia) { ?>
             <div class="col-md-4">
               <div class="card">
                 <div class="card-body">
@@ -84,9 +86,12 @@
                   <p class="card-text"><small class="text-muted">Category: <?php echo $noticia->nombre_categoria; ?></small></p>
                   <p class="card-text"><small class="text-muted">Date: <?php echo $noticia->creation_date; ?></small></p>
 
-                  <form action="noticia_detalle.php" method="POST" style="display:inline">
+                  <form action="noticia_detalle.php" method="POST" style="display:flex; justify-content: flex-end;">
                     <input type="hidden" name="id" value="<?php echo $noticia->id ?>">
-                    <button type="submit" class="btn">Read More</button>
+                    <input type="hidden" name="searchInput" value="<?php echo $searchInput; ?>">
+                    <input type="hidden" name="pagina" value="<?php echo $pagina_actual; ?>">
+                    <input type="hidden" name="id_categoria" value="<?php echo $categoriaSeleccionada; ?>">
+                    <button type="submit" class="btn ">Read More</button>
                   </form>
                 </div>
               </div>
@@ -102,21 +107,21 @@
           <!-- Botón de Anterior -->
           <?php if ($pagina_actual > 1): ?>
             <li class="page-item">
-              <a class="page-link" href="?pagina=<?php echo $pagina_actual - 1; ?>">Anterior</a>
+              <a class="page-link" href="?pagina=<?php echo $pagina_actual - 1 ?>&id_categoria=<?php echo $categoriaSeleccionada; ?>&searchInput=<?php echo $searchInput; ?>">Anterior</a>
             </li>
           <?php endif; ?>
 
           <!-- Botones de número de página -->
           <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
             <li class="page-item <?php if ($pagina_actual == $i) echo 'active'; ?>">
-              <a class="page-link" href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a>
+              <a class="page-link" href="?pagina=<?php echo $i; ?>&id_categoria=<?php echo $categoriaSeleccionada; ?>&searchInput=<?php echo $searchInput; ?>"><?php echo $i; ?></a>
             </li>
           <?php endfor; ?>
 
           <!-- Botón de Siguiente -->
           <?php if ($pagina_actual < $total_paginas): ?>
             <li class="page-item">
-              <a class="page-link" href="?pagina=<?php echo $pagina_actual + 1; ?>">Siguiente</a>
+              <a class="page-link" href="?pagina=<?php echo $pagina_actual + 1; ?>&id_categoria=<?php echo $categoriaSeleccionada; ?>&searchInput=<?php echo $searchInput; ?>">Siguiente</a>
             </li>
           <?php endif; ?>
         </ul>
